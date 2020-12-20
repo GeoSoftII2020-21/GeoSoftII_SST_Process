@@ -3,14 +3,11 @@ name: Pytest Workflow
 on: 
    push:
      branches: 
-       - main
        - Server
    pull_request:
      branches: 
       - main
          
-    
-
 jobs:
   build:
 
