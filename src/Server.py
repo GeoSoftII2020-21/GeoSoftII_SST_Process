@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify
 import requests
 app = Flask(__name__)
 
+
+job = {"status": "running"}
+
 @app.route("/doJob", methods=["POST"])
 def doJob():
     dataFromPost = request.get_json()
@@ -9,8 +12,13 @@ def doJob():
     data = None #Todo: Json fordert Konkrete Daten an. API Aushandeln
     r = requests.get("http://localhost:443/data", json=data)
     #Todo: Funktions aufruf was daten bearbeitet
+
     data = None
     return jsonify(data)
+
+@app.route("/jobStatus", methods=["GET"])
+def jobStatus():
+    return jsonify(job)
 
 
 
