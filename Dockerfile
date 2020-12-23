@@ -8,7 +8,7 @@ COPY req.txt .
 RUN pip install -r req.txt
 
 #Port Oeffnen Empfehlung, beim starten noch mit -80:80 ausführen
-EXPOSE 444
+EXPOSE 80
 
 #Kopiere Code
 COPY src/ .
