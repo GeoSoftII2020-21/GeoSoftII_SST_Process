@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 
 
-job = {"status": "running"}
+job = {"status": None, "result" : None}
 
 @app.route("/doJob", methods=["POST"])
 def doJob():
