@@ -5,9 +5,9 @@
 ## Inhaltsverzeichnis
 [1. Übersicht](#overview) \
 [2. Installation](#install) \
-[3. Anwendung](#use)
-  3.1. Zentrale Funktionalität
-  3.2. API Endpunkte
+[3. Anwendung](#use) \
+  3.1. Zentrale Funktionalität \
+  3.2. API Endpunkte \
 [4. Anhang](#annex)
 
 <a name="overview"><h3>Übersicht</h3></a>
