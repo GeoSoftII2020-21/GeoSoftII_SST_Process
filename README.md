@@ -19,12 +19,12 @@ Dabei wird konkret die Funktion /F0120/ des Pflichtenheftes umgesetzt.
 Außerdem gibt es ein [Docker Repository](https://hub.docker.com/repository/docker/felixgi1516/geosoft2_sst_process), welches mit diesem verlinkt ist und über das nach Fertigstellung der Service als Image bezogen werden. Und dann als Container lokal genutzt werden kann.
 
 <a name="install"><h3>Installation</h3></a>
-:warning: _Die folgende Installation ist noch nicht verfügbar. Der Port und ähnliches können sich noch ändern._ \
+:warning: _Die folgende Installation ist noch nicht verfügbar. Der Port und ähnliches können sich noch ändern._ 
 
 Die Installation und Ausführung des Containers erfolgt über den Befehl:
-'''
+```
 docker run -p 3000:3000 felixgi1516/geosoft2_sst_process
-'''
+````
 
 <a name="use"><h3>Anwendung</h3></a>
 
@@ -38,10 +38,10 @@ Dies geschieht über die zentrale Methode `mean_sst`, welche 2 Parameter entgege
 
 Die Ausgabe erfolgt über ein Dask Dataset. Visualisiert können Ergebnisse so aussehen:
 
-![]()
+![mean_1980](./images/ssst_00.png)
 Weltweites Mittel des 01.01.1981
 
-![]()
+![mean_north_europe_1981_10](./images/sst_01.png)
 Mittel des Monats Oktober 1981 für den Raum Nordeuropa
 
 #### API Endpunkte
