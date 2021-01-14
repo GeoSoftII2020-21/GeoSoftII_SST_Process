@@ -1,27 +1,43 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,Response
 import requests
 import os
+import mean_sst
+import threading
+import xarray
+import json
+import uuid
 docker = False
 app = Flask(__name__)
 
 
 
 
-job = {"status": None, "result" : None}
+job = {"status": None, "id": None}
 
 @app.route("/doJob", methods=["POST"])
 def doJob():
     dataFromPost = request.get_json()
-    #Todo: Eval. Json
-    data = None #Todo: Json fordert Konkrete Daten an. API Aushandeln
-    #Todo: Funktions aufruf was daten bearbeitet
-
-    data = None
-    return jsonify(data)
+    job["status"] = "processing"
+    t = threading.Thread(target=Job, args=(dataFromPost,))
+    t.start()
+    return Response(status=200)
 
 @app.route("/jobStatus", methods=["GET"])
 def jobStatus():
     return jsonify(job)
+
+#zum testen: requests.post("localhost:80/doJob",json={"arguments":{"data":data,"timeframe":["1984-10-01","1984-11-01"],"bbox":[-999,-999,-999,-999]}})
+
+
+def Job(dataFromPost):
+    #Funktionsaufruf von wrapper_mean_sst
+    dataset = xarray.load_dataset("data/" + str(dataFromPost["arguments"]["data"]["from_node"])+".nc")
+    x = mean_sst.wrapper_mean_sst(data=dataset,timeframe=dataFromPost["arguments"]["timeframe"],bbox=dataFromPost["arguments"]["bbox"])
+    id = uuid.uuid1()
+    id = "SST"#Todo: Löschen
+    x.to_netcdf("data/"+str(id)+".nc")
+    job["id"] = str(id)
+    job["status"]="done"
 
 
 
