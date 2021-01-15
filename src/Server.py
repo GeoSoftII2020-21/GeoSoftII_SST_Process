@@ -14,11 +14,11 @@ app = Flask(__name__)
 
 job = {"status": None, "id": None}
 
-@app.route("/doJob", methods=["POST"])
-def doJob():
+@app.route("/doJob/<uuid:id>", methods=["POST"])
+def doJob(id):
     dataFromPost = request.get_json()
     job["status"] = "processing"
-    t = threading.Thread(target=Job, args=(dataFromPost,))
+    t = threading.Thread(target=Job, args=(dataFromPost, id,))
     t.start()
     return Response(status=200)
 
@@ -29,14 +29,14 @@ def jobStatus():
 #zum testen: requests.post("localhost:80/doJob",json={"arguments":{"data":data,"timeframe":["1984-10-01","1984-11-01"],"bbox":[-999,-999,-999,-999]}})
 
 
-def Job(dataFromPost):
+def Job(dataFromPost, id):
     #Funktionsaufruf von wrapper_mean_sst
-    dataset = xarray.load_dataset("data/" + str(dataFromPost["arguments"]["data"]["from_node"])+".nc")
+    dataset = xarray.load_dataset("data/" + str(id) +"/"+ str(dataFromPost["arguments"]["data"]["from_node"])+".nc")
     x = mean_sst.wrapper_mean_sst(data=dataset,timeframe=dataFromPost["arguments"]["timeframe"],bbox=dataFromPost["arguments"]["bbox"])
-    id = uuid.uuid1()
-    id = "SST"#Todo: Löschen
-    x.to_netcdf("data/"+str(id)+".nc")
-    job["id"] = str(id)
+    subid = uuid.uuid1()
+    os.mkdir("data/"+str(subid))
+    x.to_netcdf("data/"+str(id)+"/"+str(subid)+".nc")
+    job["id"] = str(subid)
     job["status"]="done"
 
 
