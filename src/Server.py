@@ -34,7 +34,6 @@ def Job(dataFromPost, id):
     dataset = xarray.load_dataset("data/" + str(id) +"/"+ str(dataFromPost["arguments"]["data"]["from_node"])+".nc")
     x = mean_sst.wrapper_mean_sst(data=dataset,timeframe=dataFromPost["arguments"]["timeframe"],bbox=dataFromPost["arguments"]["bbox"])
     subid = uuid.uuid1()
-    os.mkdir("data/"+str(subid))
     x.to_netcdf("data/"+str(id)+"/"+str(subid)+".nc")
     job["id"] = str(subid)
     job["status"]="done"
