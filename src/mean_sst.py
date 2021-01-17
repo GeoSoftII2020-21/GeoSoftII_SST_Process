@@ -118,25 +118,28 @@ def wrapper_mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
         client = Client(cluster)
         client
         firstRun = False
-    
-    try: 
-        x = mean_sst(data, timeframe, bbox)
-        return x
-    
-    except InvalidParameterTypeError as e:
-        print(e.message)
-    except InvalidBboxLengthError as e:
-        print(e.message)
-    except InvalidLongitudeValueError as e:
-        print(e.message)
-    except InvalidLatitudeValueError as e:
-        print(e.message)
-    except InvalidBboxValueError as e:
-        print(e.message)
-    except InvalidTimeframeLengthError as e:
-        print(e.message)
-    except InvalidTimeframeValueError as e:
-        print(e.message)
+    x = mean_sst(data, timeframe, bbox)
+    return x
+
+
+    #try:
+    #    x = mean_sst(data, timeframe, bbox)
+    #    return x
+    #
+    #except InvalidParameterTypeError as e:
+    #    print(e.message)
+    #except InvalidBboxLengthError as e:
+    #    print(e.message)
+    #except InvalidLongitudeValueError as e:
+    #    print(e.message)
+    #except InvalidLatitudeValueError as e:
+    #    print(e.message)
+    #except InvalidBboxValueError as e:
+    #    print(e.message)
+    #except InvalidTimeframeLengthError as e:
+    #    print(e.message)
+    #except InvalidTimeframeValueError as e:
+    #    print(e.message)
 
 
 # In[216]:
