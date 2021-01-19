@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 
 
-job = {"status": None, "id": None}
+job = {"status": None, "id": None, "jobid": None}
 
 @app.route("/doJob/<uuid:id>", methods=["POST"])
 def doJob(id):
@@ -30,6 +30,8 @@ def jobStatus():
 
 
 def Job(dataFromPost, id):
+    job["status"] = "running"
+    job["jobid"] = str(id)
     #Funktionsaufruf von wrapper_mean_sst
     dataset = xarray.load_dataset("data/" + str(id) +"/"+ str(dataFromPost["arguments"]["data"]["from_node"])+".nc")
     x = mean_sst.wrapper_mean_sst(data=dataset,timeframe=dataFromPost["arguments"]["timeframe"],bbox=dataFromPost["arguments"]["bbox"])
