@@ -1,37 +1,39 @@
-'''packages'''
+'''Packages'''
 import xarray as xr
 import math
 import numpy as np
 
 '''Exceptions'''
 
-class InvalidParameterTypeError(Exception):
+class ParameterTypeError(Exception):
   def __init__(self, message):
     self.message = message
 
-class InvalidBboxLengthError(Exception):
+class BboxLengthError(Exception):
   def __init__(self, message):
     self.message = message
 
-class InvalidBboxValueError(Exception):
+class BboxCellsizeError(Exception):
   def __init__(self, message):
     self.message = message
 
-class InvalidLongitudeValueError(Exception):
+class LongitudeValueError(Exception):
   def __init__(self, message):
     self.message = message
 
-class InvalidLatitudeValueError(Exception):
+class LatitudeValueError(Exception):
   def __init__(self, message):
     self.message = message
 
-class InvalidTimeframeLengthError(Exception):
+class TimeframeLengthError(Exception):
   def __init__(self, message):
     self.message = message
 
-class InvalidTimeframeValueError(Exception):
+class TimeframeValueError(Exception):
   def __init__(self, message):
     self.message = message
+
+'''Functions'''
 
 def createSubset(ds, minLon, minLat, maxLon, maxLat):
   '''
@@ -52,23 +54,27 @@ def createSubset(ds, minLon, minLat, maxLon, maxLat):
     ds_subset2 = ds.sel(lon=slice(ds["lon"].values[0], maxLon), lat=slice(minLat, maxLat))
     ds_subset_concat = xr.concat([ds_subset1, ds_subset2], "lon")
     '''update metadata'''
-    ds_subset_concat["lon"].actual_range[0] = ds_subset_concat["lon"].values[0]
-    ds_subset_concat["lon"].actual_range[1] = ds_subset_concat["lon"].values[-1]
-    ds_subset_concat["lat"].actual_range[0] = ds_subset_concat["lat"].values[0]
-    ds_subset_concat["lat"].actual_range[1] = ds_subset_concat["lat"].values[-1]
+    if hasattr(ds_subset_concat["lon"], 'actual_range'):
+    	ds_subset_concat["lon"].actual_range[0] = ds_subset_concat["lon"].values[0]
+    	ds_subset_concat["lon"].actual_range[1] = ds_subset_concat["lon"].values[-1]
+    if hasattr(ds_subset_concat["lat"], 'actual_range'):
+    	ds_subset_concat["lat"].actual_range[0] = ds_subset_concat["lat"].values[0]
+    	ds_subset_concat["lat"].actual_range[1] = ds_subset_concat["lat"].values[-1]
     return ds_subset_concat
   else:
     ds_subset = ds.sel(lon=slice(minLon, maxLon), lat=slice(minLat, maxLat))
     '''update metadata'''
-    ds_subset["lon"].actual_range[0] = ds_subset["lon"].values[0]
-    ds_subset["lon"].actual_range[1] = ds_subset["lon"].values[-1]
-    ds_subset["lat"].actual_range[0] = ds_subset["lat"].values[0]
-    ds_subset["lat"].actual_range[1] = ds_subset["lat"].values[-1]
+    if hasattr(ds_subset["lon"], 'actual_range'):
+    	ds_subset["lon"].actual_range[0] = ds_subset["lon"].values[0]
+    	ds_subset["lon"].actual_range[1] = ds_subset["lon"].values[-1]
+    if hasattr(ds_subset["lat"], 'actual_range'):
+        ds_subset["lat"].actual_range[0] = ds_subset["lat"].values[0]
+        ds_subset["lat"].actual_range[1] = ds_subset["lat"].values[-1]
     return ds_subset
 
 def wrapper_mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
     '''
-    Passes parameters on to function mean_sst and catches exceptions.
+    Passes parameters on to function exceptions_mean_sst and catches exceptions.
 
     Parameters:
         ds (dask dataset): dataset
@@ -76,41 +82,39 @@ def wrapper_mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
         bbox ([double]): optional, Array with four values: [min Longitude, min Latitude, max Longitude, max Latitude]
 
     Returns:
-        ds_nc (netcdf): dataset with mean sea surface temperature
+        ds_nc (xarray datset): dataset with mean sea surface temperature
     '''
 
     try:
-        x = mean_sst(data, timeframe, bbox)
+        x = exceptions_mean_sst(data, timeframe, bbox)
         return x
 
-    except InvalidParameterTypeError as e:
+    except ParameterTypeError as e:
         print(e.message)
-    except InvalidBboxLengthError as e:
+    except BboxLengthError as e:
         print(e.message)
-    except InvalidLongitudeValueError as e:
+    except LongitudeValueError as e:
         print(e.message)
-    except InvalidLatitudeValueError as e:
+    except LatitudeValueError as e:
         print(e.message)
-    except InvalidBboxValueError as e:
+    except BboxCellsizeError as e:
         print(e.message)
-    except InvalidTimeframeLengthError as e:
+    except TimeframeLengthError as e:
         print(e.message)
-    except InvalidTimeframeValueError as e:
+    except TimeframeValueError as e:
         print(e.message)
 
-def mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
+def exceptions_mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
     '''
-    Calculates mean sea surface temperature.
+    Passes parameters on to function mean_sst and throws exceptions.
 
     Parameters:
         timeframe ([str]): tuple with values for start and end dates, e.g. ['1981-10-01','1981-11-01']
         bbox ([double]): optional, Array with four values: [min Longitude, min Latitude, max Longitude, max Latitude]
 
     Returns:
-        ds_nc (netcdf): dataset with mean sea surface temperature
+        ds_nc (xarray datset): dataset with mean sea surface temperature
     '''
-
-    '''Checks parameters and raises exceptions'''
 
     '''Checks parameter bbox'''
 
@@ -122,35 +126,64 @@ def mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
     lat_cellsize = abs(minLat - data["lat"].values[1])
 
     if len(bbox) != 4:
-        raise InvalidBboxLengthError("Parameter bbox is an array with four values: [min Longitude, min Latitude, max Longitude, max Latitude]. Please specify an array with exactly four values.")
+        raise BboxLengthError("Parameter bbox is an array with four values: [min Longitude, min Latitude, max Longitude, max Latitude]. Please specify an array with exactly four values.")
     elif (bbox != [-999,-999,-999,-999]):
-        if (type(bbox[0]) != int and type(bbox[0]) != float) or (type(bbox[1]) != int and type(bbox[1]) != float) or (type(bbox[2]) != int and type(bbox[2]) != float) or (type(bbox[3]) != int and type(bbox[3]) != float):
-            raise InvalidParameterTypeError("Values of Parameter bbox must be numbers and values of parameter timeframe must be strings of the format 'year-month-day'. For example '1981-01-01'. Please specify timeframe values that follow this.")
-        elif bbox[0] < math.floor(minLon) or bbox[0] > math.ceil(maxLon) or bbox[2] < math.floor(minLon) or bbox[2] > math.ceil(maxLon):
-            raise InvalidLongitudeValueError("Longitude values are out of bounds. Please check the range of the dataset.")
-        elif bbox[1] > bbox[3] or bbox[1] < math.floor(minLat) or bbox[1] > math.ceil(maxLat) or bbox[3] < math.floor(minLat) or bbox[3] > math.ceil(maxLat):
-            raise InvalidLatitudeValueError("Latitude values are out of bounds. Please check the range of the dataset.")
-        elif abs(abs(bbox[2]) - abs(bbox[0])) < lon_cellsize or abs(bbox[1] - bbox[3]) < lat_cellsize:
-            raise InvalidBboxValueError("Latitude or Longitude difference is too small. Please check the cellsize of the dataset.")
+        if ((type(bbox[0]) != int and type(bbox[0]) != float)
+                or (type(bbox[1]) != int and type(bbox[1]) != float)
+                or (type(bbox[2]) != int and type(bbox[2]) != float)
+                or (type(bbox[3]) != int and type(bbox[3]) != float)):
+            raise ParameterTypeError("Values of Parameter bbox must be numbers and values of parameter timeframe must be strings of the format 'year-month-day'. For example '1981-01-01'. Please specify values that follow this.")
+        elif (bbox[0] < math.floor(minLon)
+                or bbox[0] > math.ceil(maxLon)
+                or bbox[2] < math.floor(minLon)
+                or bbox[2] > math.ceil(maxLon)):
+            raise LongitudeValueError("Longitude values are out of bounds. Please check the range of the dataset.")
+        elif (bbox[1] > bbox[3]
+                or bbox[1] < math.floor(minLat)
+                or bbox[1] > math.ceil(maxLat)
+                or bbox[3] < math.floor(minLat)
+                or bbox[3] > math.ceil(maxLat)):
+            raise LatitudeValueError("Latitude values are out of bounds. Please check the range of the dataset.")
+        elif (abs(abs(bbox[2]) - abs(bbox[0])) < lon_cellsize
+                or abs(bbox[1] - bbox[3]) < lat_cellsize
+                or bbox[0] > maxLon and bbox[2] < minLon):
+            raise BboxCellsizeError("Difference between first and second Latitude or first and second Longitude value is too small. Please check the cellsize of the dataset.")
 
     '''Checks parameter timeframe'''
 
     if len(timeframe) != 2:
-        raise InvalidTimeframeLengthError("Parameter timeframe is an array with two values: [start date, end date]. Please specify an array with exactly two values.")
+        raise TimeframeLengthError("Parameter timeframe is an array with two values: [start date, end date]. Please specify an array with exactly two values.")
 
     try:
         x = isinstance(np.datetime64(timeframe[0]),np.datetime64)
         x = isinstance(np.datetime64(timeframe[1]),np.datetime64)
 
     except ValueError:
-        raise InvalidParameterTypeError("Values of Parameter bbox must be numbers and values of parameter timeframe must be strings of the format 'year-month-day'. For example '1981-01-01'. Please specify timeframe values that follow this.")
+        raise ParameterTypeError("Values of Parameter bbox must be numbers and values of parameter timeframe must be strings of the format 'year-month-day'. For example '1981-01-01'. Please specify values that follow this.")
 
-    if (type(timeframe[0]) != str) or (type(timeframe[1]) != str):
-        raise InvalidParameterTypeError("Values of Parameter bbox must be numbers and values of parameter timeframe must be strings of the format 'year-month-day'. For example '1981-01-01'. Please specify timeframe values that follow this.")
-    elif timeframe[0] > timeframe[1] or np.datetime_as_string(data["time"][0], unit='D') > timeframe[0] or np.datetime_as_string(data["time"][0], unit='D') > timeframe[1] or timeframe[1] > np.datetime_as_string(data["time"][-1], unit='D') or timeframe[0] > np.datetime_as_string(data["time"][-1], unit='D'):
-        raise InvalidTimeframeValueError("Timeframe values are out of bounds. Please check the range of the dataset.")
+    if (type(timeframe[0]) != str or type(timeframe[1]) != str
+            or len(timeframe[0]) != 10 or len(timeframe[1]) != 10):
+        raise ParameterTypeError("Values of Parameter bbox must be numbers and values of parameter timeframe must be strings of the format 'year-month-day'. For example '1981-01-01'. Please specify values that follow this.")
+    elif (timeframe[0] > timeframe[1]
+            or np.datetime_as_string(data["time"][0], unit='D') > timeframe[0]
+            or np.datetime_as_string(data["time"][0], unit='D') > timeframe[1]
+            or timeframe[1] > np.datetime_as_string(data["time"][-1], unit='D')
+            or timeframe[0] > np.datetime_as_string(data["time"][-1], unit='D')):
+        raise TimeframeValueError("Timeframe values are out of bounds. Please check the range of the dataset.")
 
-    '''Compute mean and temporal and spatial subset'''
+    return mean_sst(data, timeframe, bbox)
+
+def mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
+    '''
+    Calculates mean sea surface temperature.
+
+    Parameters:
+        timeframe ([str]): tuple with values for start and end dates, e.g. ['1981-10-01','1981-11-01']
+        bbox ([double]): optional, Array with four values: [min Longitude, min Latitude, max Longitude, max Latitude]
+
+    Returns:
+        ds_nc (xarray datset): dataset with mean sea surface temperature
+    '''
 
     start = timeframe[0]
     end = timeframe[1]
@@ -160,13 +193,11 @@ def mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
         if (bbox != [-999,-999,-999,-999]):
             ds_day = createSubset(ds_day, bbox[0], bbox[1], bbox[2], bbox[3])
         ds_day = ds_day.load()
-        ds_nc = ds_day.to_netcdf()
-        return ds_nc
+        return ds_day
     else:
         ds_timeframe = data.sel(time=slice(start, end))
         if (bbox != [-999,-999,-999,-999]):
             ds_timeframe = createSubset(ds_timeframe, bbox[0], bbox[1], bbox[2], bbox[3])
         ds_timeframe_mean = ds_timeframe.sst.mean(dim=('time'))
         ds_timeframe_mean = ds_timeframe_mean.load()
-        ds_nc = ds_timeframe_mean.to_netcdf()
-        return ds_nc
+        return ds_timeframe_mean
