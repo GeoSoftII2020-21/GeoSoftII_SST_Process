@@ -19,7 +19,8 @@ def dask_client():
 from mean_sst import ParameterTypeError, BboxLengthError, BboxCellsizeError, LongitudeValueError, LatitudeValueError, TimeframeLengthError, TimeframeValueError  
 from mean_sst import createSubset, wrapper_mean_sst, exceptions_mean_sst, mean_sst
 
-ds = xr.open_dataset("./sst.day.mean.1984-03-4days.nc", chunks={"time": "auto"})
+os.getcwd()
+ds = xr.open_dataset("sst.day.mean.1984-03-4days.nc", chunks={"time": "auto"})
 
 '''test function createSubset'''
 
