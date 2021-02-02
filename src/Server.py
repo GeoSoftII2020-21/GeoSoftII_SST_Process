@@ -27,8 +27,10 @@ def jobStatus():
     return jsonify(job)
 
 def jobwrapper(dataFromPost, id):
+    Job(dataFromPost, id)
     try:
-        Job(dataFromPost, id)
+        #Job(dataFromPost, id)
+        print("Test")
     except:
         job["status"] = "error"
         job["errorType"] = "Unkown Error"
@@ -41,10 +43,13 @@ def Job(dataFromPost, id):
     job["status"] = "running"
     job["jobid"] = str(id)
     #Funktionsaufruf von wrapper_mean_sst
-    dataset = xarray.load_dataset("data/" + str(id) +"/"+ str(dataFromPost["arguments"]["data"]["from_node"])+".nc")
+    dataset = xarray.open_dataset("data/" + str(id) +"/"+ str(dataFromPost["arguments"]["data"]["from_node"])+".nc")
+    x = mean_sst.wrapper_mean_sst(data=dataset, timeframe=dataFromPost["arguments"]["timeframe"],
+                                  bbox=dataFromPost["arguments"]["bbox"])
 
     try:
-        x = mean_sst.wrapper_mean_sst(data=dataset,timeframe=dataFromPost["arguments"]["timeframe"],bbox=dataFromPost["arguments"]["bbox"])
+        #x = mean_sst.wrapper_mean_sst(data=dataset,timeframe=dataFromPost["arguments"]["timeframe"],bbox=dataFromPost["arguments"]["bbox"])
+        print("Test")
 
     except mean_sst.ParameterTypeError as e: #Datentypen von Bbox oder Timeframe stimmen nicht
         job["status"] = "error"
