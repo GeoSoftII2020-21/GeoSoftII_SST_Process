@@ -16,8 +16,7 @@ def dask_client():
     client.close()
     cluster.close()
 
-from mean_sst import ParameterTypeError, BboxLengthError, BboxCellsizeError, LongitudeValueError, LatitudeValueError, TimeframeLengthError, TimeframeValueError  
-from mean_sst import createSubset, wrapper_mean_sst, exceptions_mean_sst, mean_sst
+from mean_sst import *
 
 os.getcwd()
 ds = xr.open_dataset("./GeoSoftII_SST_Process/test/sst.day.mean.1984-03-4days.nc", chunks={"time": "auto"})
@@ -80,6 +79,55 @@ def test_mean_sst_2():
     
 '''test function exceptions_mean_sst'''
 
+'''test that all necessary parameters were given in right order'''
+
+def test_NoParameters():
+    with pytest.raises(TypeError):
+        exceptions_mean_sst()
+        
+def test_OnlyParameterData():
+    with pytest.raises(TypeError):
+        exceptions_mean_sst(ds)
+        
+def test_OnlyParameterTimeframe():
+    with pytest.raises(TypeError):
+        exceptions_mean_sst(['1984-03-01','1984-03-01'])
+        
+def test_ParametersTimeframeDataSwitched():
+    with pytest.raises(AttributeError):
+        exceptions_mean_sst(['1984-03-01','1984-03-01'], ds)
+    
+def test_ParametersTimeframeBboxSwitched():
+    with pytest.raises(BboxLengthError):
+        exceptions_mean_sst(ds, [0,-20,70,20], ['1984-03-01', '1984-03-04'])
+
+'''test that parameter data has necessary attributes'''
+
+def test_NoDataVars():
+    with pytest.raises(DatasetAttributesError):
+        x = ds.drop_vars("sst")
+        exceptions_mean_sst(x, ['1984-03-01','1984-03-01'])
+        
+def test_UpperCaseSSTVar():
+    with pytest.raises(DatasetAttributesError):
+        x = ds.rename({"sst": "SST"})
+        exceptions_mean_sst(x, ['1984-03-01','1984-03-01'])
+        
+def test_UpperCaseLonDim():
+    with pytest.raises(DatasetAttributesError):
+        x = ds.rename({"lon": "Lon"})
+        exceptions_mean_sst(x, ['1984-03-01','1984-03-01'])
+        
+def test_UpperCaseLatDim():
+    with pytest.raises(DatasetAttributesError):
+        x = ds.rename({"lat": "LAT"})
+        exceptions_mean_sst(x, ['1984-03-01','1984-03-01'])
+        
+def test_UpperCaseTimeDim():
+    with pytest.raises(DatasetAttributesError):
+        x = ds.rename({"time": "Time"})
+        exceptions_mean_sst(x, ['1984-03-01','1984-03-01'])
+    
 '''test that parameter bbox has right length'''
     
 def test_BboxTooLong():
