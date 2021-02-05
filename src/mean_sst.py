@@ -33,6 +33,10 @@ class TimeframeValueError(Exception):
   def __init__(self, message):
     self.message = message
 
+class DatasetAttributesError(Exception):
+  def __init__(self, message):
+    self.message = message
+
 '''Functions'''
 
 def createSubset(ds, minLon, minLat, maxLon, maxLat):
@@ -40,7 +44,7 @@ def createSubset(ds, minLon, minLat, maxLon, maxLat):
   Creates a spatial subset.
 
   Parameters:
-    ds (dask dataset): dataset, from which a Subset is generates
+    ds (dask dataset): dataset from which a subset is generated
     minLon (double): left value
     minLat (double): bottom value
     maxLon (double): right value
@@ -74,34 +78,40 @@ def createSubset(ds, minLon, minLat, maxLon, maxLat):
 
 def wrapper_mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
     '''
-    Passes parameters on to function exceptions_mean_sst and catches exceptions.
+    Executes function exceptions_mean_sst.
 
     Parameters:
-        ds (dask dataset): dataset
+        data (dask dataset): dataset
         timeframe ([str]): tuple with values for start and end dates, e.g. ['1981-10-01','1981-11-01']
-        bbox ([double]): optional, Array with four values: [min Longitude, min Latitude, max Longitude, max Latitude]
+        bbox ([float]): optional, Array with four values: [min Longitude, min Latitude, max Longitude, max Latitude]
 
     Returns:
-        ds_nc (xarray datset): dataset with mean sea surface temperature
+        ds (xarray dataset): dataset with mean sea surface temperature
     '''
 
-
-    x = exceptions_mean_sst(data, timeframe, bbox)
-    return x
-
-
+    ds = exceptions_mean_sst(data, timeframe, bbox)
+    return ds
 
 def exceptions_mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
     '''
     Passes parameters on to function mean_sst and throws exceptions.
 
     Parameters:
+        data (dask dataset): dataset
         timeframe ([str]): tuple with values for start and end dates, e.g. ['1981-10-01','1981-11-01']
-        bbox ([double]): optional, Array with four values: [min Longitude, min Latitude, max Longitude, max Latitude]
+        bbox ([float]): optional, Array with four values: [min Longitude, min Latitude, max Longitude, max Latitude]
 
     Returns:
-        ds_nc (xarray datset): dataset with mean sea surface temperature
+        ds (xarray dataset): dataset with mean sea surface temperature
     '''
+
+    '''Checks parameter data'''
+
+    if ('sst' not in data.data_vars
+            or 'lon' not in data.dims
+            or 'lat' not in data.dims
+            or 'time' not in data.dims):
+        raise DatasetAttributesError("Parameter data must include dimensions 'lat', 'lon' and 'time' and a data variable named 'sst'.")
 
     '''Checks parameter bbox'''
 
@@ -158,33 +168,35 @@ def exceptions_mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
             or timeframe[0] > np.datetime_as_string(data["time"][-1], unit='D')):
         raise TimeframeValueError("Timeframe values are out of bounds. Please check the range of the dataset.")
 
-    return mean_sst(data, timeframe, bbox)
+    ds = mean_sst(data, timeframe, bbox)
+    return ds
 
 def mean_sst(data, timeframe, bbox = [-999,-999,-999,-999]):
     '''
-    Calculates mean sea surface temperature.
+    Calculates mean sea surface temperature and creates temporal and spatial subset.
 
     Parameters:
+        data (dask dataset): dataset
         timeframe ([str]): tuple with values for start and end dates, e.g. ['1981-10-01','1981-11-01']
-        bbox ([double]): optional, Array with four values: [min Longitude, min Latitude, max Longitude, max Latitude]
+        bbox ([float]): optional, Array with four values: [min Longitude, min Latitude, max Longitude, max Latitude]
 
     Returns:
-        ds_nc (xarray datset): dataset with mean sea surface temperature
+        ds (xarray dataset): dataset with mean sea surface temperature
     '''
 
     start = timeframe[0]
     end = timeframe[1]
 
     if (start == end):
-        ds_day = data.sel(time = start)
+        ds = data.sel(time = start)
         if (bbox != [-999,-999,-999,-999]):
-            ds_day = createSubset(ds_day, bbox[0], bbox[1], bbox[2], bbox[3])
-        ds_day = ds_day.load()
-        return ds_day
+            ds = createSubset(ds, bbox[0], bbox[1], bbox[2], bbox[3])
+        ds = ds.load()
+        return ds
     else:
-        ds_timeframe = data.sel(time=slice(start, end))
+        ds = data.sel(time=slice(start, end))
         if (bbox != [-999,-999,-999,-999]):
-            ds_timeframe = createSubset(ds_timeframe, bbox[0], bbox[1], bbox[2], bbox[3])
-        ds_timeframe_mean = ds_timeframe.sst.mean(dim=('time'))
-        ds_timeframe_mean = ds_timeframe_mean.load()
-        return ds_timeframe_mean
+            ds = createSubset(ds, bbox[0], bbox[1], bbox[2], bbox[3])
+        ds = ds.sst.mean(dim=('time'))
+        ds = ds.load()
+        return ds
