@@ -1,23 +1,21 @@
-# SST Prozess
-### Geosoftware II Projekt WiSe 2020/21 
+# SST Process
+### Geosoftware II Project WiSe 2020/21 
 ---
 
-## Inhaltsverzeichnis
-[1. Übersicht](#overview) \
-[2. Installation](#install) \
-[3. Anwendung](#use) \
-  3.1. Zentrale Funktionalität \
-  3.2. API Endpunkte \
-[4. Anhang](#annex)
+## Table of contents
+[1. Overview](#overview)\
+[2. Installation](#install)\
+[3. Scope of functionalities](#functionalities)\
+[4. Examples of use](#use)\
+[5. Technologies](#technologies)
 
 \
-<a name="overview"><h3>Übersicht</h3></a>
-Dieses Projekt ist ein Teil für einen neuen [openEO](https://openeo.org/) Backenddriver der mit [Pangeo Software Stack](https://pangeo.io/) arbeitet.
+<a name="overview"><h3>Overview</h3></a>
+This project is part of a new [openEO](https://openeo.org/) backend driver using the [Pangeo Software Stack](https://pangeo.io/), in particular xArray and Dask.
 
-Ziel ist einen Microservice zu erstellen, der mit den Pangeo Teilpaketen die Durchschnittsmeerestemperatur über einen nutzerbestimmten Zeitraum aus netCDF Datacubes errechnen kann.
-Dabei wird konkret die Funktion /F0120/ des Pflichtenheftes umgesetzt.
+The goal of this microservice is to calculate the mean sea surface temperature over a from the user input timeframe and spatial subset. The data for the calculation comes from a netCDF Datacube containing sst data. 
 
-Außerdem gibt es ein [Docker Repository](https://hub.docker.com/repository/docker/felixgi1516/geosoft2_sst_process), welches mit diesem verlinkt ist und über das nach Fertigstellung der Service als Image bezogen werden. Und dann als Container lokal genutzt werden kann.
+There also exists a [Docker Repository](https://hub.docker.com/repository/docker/felixgi1516/geosoft2_sst_process), which is linked with this one and from which the service can be obtained as an image. And can then be used locally as a container.
 
 \
 <a name="install"><h3>Installation</h3></a>
@@ -29,18 +27,21 @@ docker run -p 3000:3000 felixgi1516/geosoft2_sst_process
 ````
 
 \
-<a name="use"><h3>Anwendung</h3></a>
+<a name="functionalities"><h3>Scope of functionalities</h3></a>
+
+The mean sea surface temperature calculations are done via the central method 'mean_sst', which takes 3 parameters:
+
+1. `data` A datacube in netCDF format. The datacube must have the dimensions 'lon', 'lat' and 'time' and the data varible 'sst'
+2. `timeframe` An array with two values: [start date, end date]. The dates must be in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) format **yyyy-mm-dd** (e.g. ['2007-06-01','2007-08-31']). 
+3. `bbox` A bounding box with four values: [min Longitude, min Latitude, max Longitude, max Latitude]. For example [0, 50, 30, 75] for North Europe. This parameter is optional. If this parameter isn't specified the mean will be calculated over the whole spatial dimension of the dataset. 
 
 
-#### Zentrale Funktionalität
-Die Software greift einen Datacube im [netCDF](https://de.wikipedia.org/wiki/NetCDF) Format zu. Dieser beinhaltet tägliche Meerestemperaturdaten die räumlich und zeitlich strukturiert sind, wie diese [Daten](ftp://ftp.cdc.noaa.gov/Projects/Datasets/noaa.oisst.v2.highres/) der US-amerikanischen National Oceanic and Atmospheric Administration. Ist ein solcher Datensatz für die Software verfügbar (d. H. in einem Verzeichnis auf Sie zugreifen kann), sind Berechnung der Durchschnittstemperatur möglich. 
+<a name="use"><h3>Examples of use</h3></a>
+The Microservice can be used via an endpoint.
 
-Dies geschieht über die zentrale Methode `mean_sst`, welche 2 Parameter entgegennimmt:
+:bangbang: here exapmle job description
 
-1. `timeframe` Eine Python-Liste mit Anfangsdatum und Enddatum im [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) Format **yyyy-mm-dd** (z. B. ['2007-06-01','2007-08-31' für den Sommer 2007]). Über diesem Zeitraum wird das Mittel errechnet.
-2. `bbox` Eine Boundingbox mit vier Eckkoordinaten, für eine geographische Auswahl des Berechnungsraums (z. B. [0, 50, 30, 75] für den Raum Nordeuropa)
-
-Die Ausgabe erfolgt über ein Dask Dataset. Visualisiert können Ergebnisse so aussehen:
+Visualized the results can look like this:
 
 ![mean_1980](./images/ssst_00.png)
 Weltweites Mittel des 01.01.1981
@@ -48,17 +49,8 @@ Weltweites Mittel des 01.01.1981
 ![mean_north_europe_1981_10](./images/sst_01.png)
 Mittel des Monats Oktober 1981 für den Raum Nordeuropa
 
-
-#### API Endpunkte
-Der Microservice soll über Endpoints aufrufbar sein, leider sind noch keine verfügbar.
-
-:bangbang: Endpoints anlegen und hier dokumentieren
-
 \
-<a name="annex"><h3>Anhang</h3></a>
-
-
-#### Verwendete Software
+<a name="technologies"><h3>Technologies</h3></a>
 
 Software | Version
 ------ | ------
