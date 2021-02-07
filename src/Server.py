@@ -16,6 +16,11 @@ job = {"status": None, "id": None, "jobid": None, "errorType":None}
 
 @app.route("/doJob/<uuid:id>", methods=["POST"])
 def doJob(id):
+    """
+    Takes a given job and starts the processing
+    :param id:
+    :return:
+    """
     dataFromPost = request.get_json()
     job["status"] = "processing"
     t = threading.Thread(target=jobwrapper, args=(dataFromPost, id,))
@@ -24,9 +29,17 @@ def doJob(id):
 
 @app.route("/jobStatus", methods=["GET"])
 def jobStatus():
+    """
+    Returns the job status
+    :return:
+    """
     return jsonify(job)
 
 def jobwrapper(dataFromPost, id):
+    """
+    Wrapper function for the SST Job
+    :rtype: object
+    """
     Job(dataFromPost, id)
     try:
         #Job(dataFromPost, id)
@@ -36,46 +49,49 @@ def jobwrapper(dataFromPost, id):
         job["errorType"] = "Unkown Error"
         return
 
-#zum testen: requests.post("localhost:80/doJob",json={"arguments":{"data":data,"timeframe":["1984-10-01","1984-11-01"],"bbox":[-999,-999,-999,-999]}})
+
 
 
 def Job(dataFromPost, id):
+    """
+    Starts the job processing
+    :param dataFromPost:
+    :param id:
+    :return:
+    """
     job["status"] = "running"
     job["jobid"] = str(id)
-    #Funktionsaufruf von wrapper_mean_sst
     dataset = xarray.open_dataset("data/" + str(id) +"/"+ str(dataFromPost["arguments"]["data"]["from_node"])+".nc")
-    x = mean_sst.wrapper_mean_sst(data=dataset, timeframe=dataFromPost["arguments"]["timeframe"],
-                                  bbox=dataFromPost["arguments"]["bbox"])
 
     try:
-        #x = mean_sst.wrapper_mean_sst(data=dataset,timeframe=dataFromPost["arguments"]["timeframe"],bbox=dataFromPost["arguments"]["bbox"])
-        print("Test")
+        x = mean_sst.wrapper_mean_sst(data=dataset, timeframe=dataFromPost["arguments"]["timeframe"],
+                                      bbox=dataFromPost["arguments"]["bbox"])
 
-    except mean_sst.ParameterTypeError as e: #Datentypen von Bbox oder Timeframe stimmen nicht
+    except mean_sst.ParameterTypeError as e:
         job["status"] = "error"
         job["errorType"] ="ParameterTypeError"
         return
-    except mean_sst.BboxLengthError as e: #Bbox hat nicht 4 Elemente
+    except mean_sst.BboxLengthError as e:
         job["status"] = "error"
         job["errorType"] = "BboxLengthError"
         return
-    except mean_sst.LongitudeValueError as e: #Bbox Out of bounds
+    except mean_sst.LongitudeValueError as e:
         job["status"] = "error"
         job["errorType"] = "LongitudeValueError"
         return
-    except mean_sst.LatitudeValueError as e: #Bbox Out of bounds
+    except mean_sst.LatitudeValueError as e:
         job["status"] = "error"
         job["errorType"] = "LatitudeValueError"
         return
-    except mean_sst.BboxCellsizeError as e: #Bbox abstand zu klein
+    except mean_sst.BboxCellsizeError as e:
         job["status"] = "error"
         job["errorType"] = "BboxCellsizeError"
         return
-    except mean_sst.TimeframeLengthError as e: #Timeframe keine 2 elemente
+    except mean_sst.TimeframeLengthError as e:
         job["status"] = "error"
         job["errorType"] = "TimeframeLengthError"
         return
-    except mean_sst.TimeframeValueError as e: #Timeframe out of bound
+    except mean_sst.TimeframeValueError as e:
         job["status"] = "error"
         job["errorType"] = "TimeframeValueError"
         return
@@ -97,7 +113,7 @@ def Job(dataFromPost, id):
 
 def main():
     """
-    Startet den Server. Aktuell im Debug Modus und Reagiert auf alle eingehenden Anfragen auf Port 80.
+    Starts the server.
     """
     global docker
     if os.environ.get("DOCKER") == "True":
