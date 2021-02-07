@@ -57,4 +57,10 @@ Software | Version
 [Python](https://www.python.org/)   | 3.8.6
 [xarray](http://xarray.pydata.org/en/stable/)   | 0.16.1
 [dask](https://dask.org/)   | 2.30.0
+Flask | 1.1.2
+requests | 2.25.0
+flask_cors | 3.0.9
+numpy | 1.19.3
+scipy | 1.5.4
+netcdf4 | 1.5.4
 
