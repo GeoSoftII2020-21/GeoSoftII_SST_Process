@@ -35,6 +35,18 @@ The mean sea surface temperature calculations are done via the central method 'm
 2. `timeframe` An array with two values: [start date, end date]. The dates must be in the [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) format **yyyy-mm-dd** (e.g. ['2007-06-01','2007-08-31']). 
 3. `bbox` A bounding box with four values: [min Longitude, min Latitude, max Longitude, max Latitude]. For example [0, 50, 30, 75] for North Europe. This parameter is optional. If this parameter isn't specified the mean will be calculated over the whole spatial dimension of the dataset. 
 
+The central  method 'mean_sst' uses the function 'createSubset' to create the spatial subset. The parameters for this function are:
+
+1. `ds` The dataset from which a subset is generated
+2. `minLon` left value of the subset
+3. `minLat` bottom value of the subset
+4. `maxLon` right value of the subset
+5. `maxLat` top value of the subset
+
+Both methods, 'mean_sst' and 'createSubset', are not meant to be used on their own, but rather always through the method 'exceptions_mean_sst'. This method 
+checks the parameter values the user put in and throws exceptions for invalid inputs, e.g. for wrong parameter type, for timeframes and bounding boxes which go over the range of the dataset, for wanting to calculate mean sst on a dataset, that doesn't contain sst data, and more.  
+
+Since most sst datasets have longitude values from 0 to 360 the function 'create_Subset' can also create subsets where minLon is greater than maxLon. This has the advantage that it is possible to create a subset for the whole of Europe, which would otherwise be split by the prime meridian. So for example [360, -20, 50, 20] would be a valid input for the parameter bbox. The same is not true for latitude values. [0, 50, 130, -50] is not valid!
 
 <a name="use"><h3>Examples of use</h3></a>
 The Microservice can be used via an endpoint.
