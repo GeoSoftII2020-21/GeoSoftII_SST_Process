@@ -46,7 +46,7 @@ The central  method 'mean_sst' uses the function 'createSubset' to create the sp
 Both methods, 'mean_sst' and 'createSubset', are not meant to be used on their own, but rather always through the method 'exceptions_mean_sst'. This method 
 checks the parameter values the user put in and throws exceptions for invalid inputs, e.g. for wrong parameter type, for timeframes and bounding boxes which go over the range of the dataset, for wanting to calculate mean sst on a dataset, that doesn't contain sst data, and more.  
 
-Since most sst datasets have longitude values from 0 to 360 the function 'create_Subset' can also create subsets where minLon is greater than maxLon. This has the advantage that it is possible to create a subset for the whole of Europe, which would otherwise be split by the prime meridian. So for example [360, -20, 50, 20] would be a valid input for the parameter bbox. The same is not true for latitude values. [0, 50, 130, -50] is not valid!
+Since most sst datasets have longitude values from 0 to 360 the function 'createSubset' can also create subsets where minLon is greater than maxLon. This has the advantage that it is possible to create a subset for the whole of Europe, which would otherwise be split by the prime meridian. So for example [360, -20, 50, 20] would be a valid input for the parameter bbox. The same is not true for latitude values. [0, 50, 130, -50] is not valid!
 
 <a name="use"><h3>Examples of use</h3></a>
 The Microservice can be used via an endpoint.
