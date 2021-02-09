@@ -23,7 +23,7 @@ There also exists a [Docker Repository](https://hub.docker.com/repository/docker
 
 Die Installation und Ausführung des Containers erfolgt über den Befehl:
 ```
-docker run -p 3000:3000 felixgi1516/geosoft2_sst_process
+docker run -p 442:442 felixgi1516/geosoft2_sst_process
 ````
 
 \
