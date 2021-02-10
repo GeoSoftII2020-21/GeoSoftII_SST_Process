@@ -17,14 +17,14 @@ The goal of this microservice is to calculate the mean sea surface temperature o
 
 There also exists a [Docker Repository](https://hub.docker.com/repository/docker/felixgi1516/geosoft2_sst_process), which is linked with this one and from which the service can be obtained as an image. And can then be used locally as a container.
 
-\
-<a name="install"><h3>Installation</h3></a>
-:warning: _Die folgende Installation ist noch nicht verfügbar. Der Port und ähnliches können sich noch ändern._ 
 
-Die Installation und Ausführung des Containers erfolgt über den Befehl:
+<a name="install"><h3>Installation</h3></a>
+
+
+Die Installation und AUsführung ist exklusiv im Rahmen des zur verfügung gestellten *[docker-compose.yml](https://github.com/GeoSoftII2020-21/GeoSoftII_Projekt/blob/Docker-compose/docker-compose.yml)* möglich
+```docker
+docker-compose up
 ```
-docker run -p 442:442 felixgi1516/geosoft2_sst_process
-````
 
 \
 <a name="functionalities"><h3>Scope of functionalities</h3></a>
@@ -62,6 +62,13 @@ Weltweites Mittel des 01.01.1981
 Mittel des Monats Oktober 1981 für den Raum Nordeuropa
 
 \
+
+#### API Endpunkte
+
+- `POST /doJob/{job_id}` Nimmt einen Job entgegen welcher Prozessiert wird.
+- `GET /jobstatus` Gibt einen JSON mit dem Job Status zurück.
+
+
 <a name="technologies"><h3>Technologies</h3></a>
 
 Software | Version
