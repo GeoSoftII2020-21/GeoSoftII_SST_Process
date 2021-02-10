@@ -17,11 +17,9 @@ The goal of this microservice is to calculate the mean sea surface temperature o
 
 There also exists a [Docker Repository](https://hub.docker.com/repository/docker/felixgi1516/geosoft2_sst_process), which is linked with this one and from which the service can be obtained as an image. And can then be used locally as a container.
 
-
+\
 <a name="install"><h3>Installation</h3></a>
-
-
-Die Installation und AUsführung ist exklusiv im Rahmen des zur verfügung gestellten *[docker-compose.yml](https://github.com/GeoSoftII2020-21/GeoSoftII_Projekt/blob/Docker-compose/docker-compose.yml)* möglich
+The installation and execution is possible exclusively provided within the framework of the *[docker-compose.yml](https://github.com/GeoSoftII2020-21/GeoSoftII_Projekt/blob/Docker-compose/docker-compose.yml)*.
 ```docker
 docker-compose up
 ```
@@ -49,24 +47,20 @@ checks the parameter values the user put in and throws exceptions for invalid in
 Since most sst datasets have longitude values from 0 to 360 the function 'createSubset' can also create subsets where minLon is greater than maxLon. This has the advantage that it is possible to create a subset for the whole of Europe, which would otherwise be split by the prime meridian. So for example [360, -20, 50, 20] would be a valid input for the parameter bbox. The same is not true for latitude values. [0, 50, 130, -50] is not valid!
 
 <a name="use"><h3>Examples of use</h3></a>
-The Microservice can be used via an endpoint.
-
-:bangbang: here exapmle job description
 
 Visualized the results can look like this:
 
 ![mean_1980](./images/ssst_00.png)
-Weltweites Mittel des 01.01.1981
+Worldwide Mean of 01.01.1981
 
 ![mean_north_europe_1981_10](./images/sst_01.png)
-Mittel des Monats Oktober 1981 für den Raum Nordeuropa
+Mean of oktober 1981 for region of north europe
 
 \
+#### API endpoints
 
-#### API Endpunkte
-
-- `POST /doJob/{job_id}` Nimmt einen Job entgegen welcher Prozessiert wird.
-- `GET /jobstatus` Gibt einen JSON mit dem Job Status zurück.
+- `POST /doJob/{job_id}` Accepts a job which is being processed.
+- `GET /jobstatus` Returns a JSON with the job status.
 
 
 <a name="technologies"><h3>Technologies</h3></a>
